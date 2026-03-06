@@ -55,7 +55,8 @@ const distPath = join(__dirname, 'dist');
 app.use(express.static(distPath));
 
 // ── SPA fallback ──────────────────────────────────────────────────────────────
-app.get('*', (_req, res) => {
+// Express 5 no longer accepts bare '*' — use '/:path(*)' instead
+app.get('/:path(*)', (_req, res) => {
     res.sendFile(join(distPath, 'index.html'));
 });
 

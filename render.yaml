@@ -2,11 +2,14 @@ services:
   - type: web
     name: soccer-live
     runtime: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    # npm install --include=dev ensures vite+plugins are installed even if NODE_ENV=production
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node server.js
     envVars:
-      - key: SPORTSRC_API_KEY
-        sync: false        # You will enter this manually in Render dashboard
+      - key: NODE_VERSION
+        value: "20"
       - key: NODE_ENV
         value: production
+      - key: SPORTSRC_API_KEY
+        sync: false   # Enter this in Render dashboard (optional — users can set via UI)
     autoDeploy: true

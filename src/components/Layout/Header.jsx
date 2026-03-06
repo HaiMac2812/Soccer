@@ -1,40 +1,68 @@
-import React from 'react';
-import { getApiKey } from '../../config/api';
+import React, { useState } from 'react';
+import Settings from '../Settings/Settings';
 import styles from './Header.module.css';
 
+const STORAGE_KEY = 'sportsrc_api_key';
+
+function getKey() {
+    return localStorage.getItem(STORAGE_KEY) ||
+        import.meta.env.VITE_SPORTSRC_API_KEY || '';
+}
+
 export default function Header() {
-    const apiKeyLoaded = !!getApiKey();
+    const [showSettings, setShowSettings] = useState(false);
+    const [apiKey, setApiKey] = useState(getKey);
+    const hasKey = !!apiKey;
 
     return (
-        <header className={styles.header}>
-            <div className={styles.inner}>
-                {/* Logo */}
-                <div className={styles.logo}>
-                    <span className={styles.logoIcon}>⚽</span>
-                    <span className={styles.logoText}>
-                        Soccer<span className={styles.logoAccent}>Live</span>
-                    </span>
-                </div>
-
-                {/* Live badge */}
-                <div className={styles.liveBadge}>
-                    <span className={styles.liveDot} />
-                    <span>LIVE</span>
-                </div>
-
-                {/* Status */}
-                <div className={styles.right}>
-                    {apiKeyLoaded ? (
-                        <span className={styles.keyOk} title="API Key đã được cấu hình">🔑 API Key OK</span>
-                    ) : (
-                        <span className={styles.keyMissing}>
-                            ⚠️ Chưa có API Key — Thêm vào <code>.env</code>
+        <>
+            <header className={styles.header}>
+                <div className={styles.inner}>
+                    {/* Logo */}
+                    <div className={styles.logo}>
+                        <span className={styles.logoIcon}>⚽</span>
+                        <span className={styles.logoText}>
+                            Soccer<span className={styles.logoAccent}>Live</span>
                         </span>
-                    )}
-                    <Clock />
+                    </div>
+
+                    {/* Live badge */}
+                    <div className={styles.liveBadge}>
+                        <span className={styles.liveDot} />
+                        <span>LIVE</span>
+                    </div>
+
+                    {/* Right: API status + Settings + Clock */}
+                    <div className={styles.right}>
+                        <button
+                            className={`${styles.keyStatus} ${hasKey ? styles.keyOk : styles.keyMissing}`}
+                            onClick={() => setShowSettings(true)}
+                            title={hasKey ? 'API Key đã cấu hình — click để đổi' : 'Cần API Key — click để thêm'}
+                        >
+                            {hasKey ? '🔑 API Key OK' : '⚠️ Chưa có API Key'}
+                        </button>
+
+                        <button
+                            className={styles.settingsBtn}
+                            onClick={() => setShowSettings(true)}
+                            title="Cài đặt"
+                        >
+                            ⚙️
+                        </button>
+
+                        <Clock />
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
+
+            {/* Settings modal */}
+            {showSettings && (
+                <Settings onClose={() => {
+                    setApiKey(getKey());
+                    setShowSettings(false);
+                }} />
+            )}
+        </>
     );
 }
 

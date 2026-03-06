@@ -1,15 +1,21 @@
 import axios from 'axios';
-import { API_BASE_URL, getApiKey, SPORT } from '../config/api';
+import { API_BASE_URL, SPORT } from '../config/api';
+
+/** API key: localStorage (set by Settings UI) → .env fallback */
+const getKey = () =>
+    localStorage.getItem('sportsrc_api_key') ||
+    import.meta.env.VITE_SPORTSRC_API_KEY || '';
 
 // Create axios instance
 const api = axios.create({ baseURL: API_BASE_URL });
 
 // Inject API key header on every request
 api.interceptors.request.use((config) => {
-    const key = getApiKey();
+    const key = getKey();
     if (key) config.headers['X-API-KEY'] = key;
     return config;
 });
+
 
 // ─────────────────────────────────────────────
 // Helper

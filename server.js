@@ -1,57 +1,65 @@
 /**
- * server.js — Production server for Soccer Live app on Render.
+ * server.js — Production server for Soccer Live on Render.
  *
- * Responsibilities:
- *  1. Serve the Vite build output (dist/) as static files
- *  2. Proxy /api/* → https://api.sportsrc.org/v2/* (keeps API key server-side)
- *  3. Send React's index.html for any unmatched route (SPA fallback)
+ * Uses Node 18+ native fetch (no extra proxy packages needed).
+ * 1. Proxies /api/* → https://api.sportsrc.org/v2/* (adds API key server-side)
+ * 2. Serves the Vite dist/ build as static files
+ * 3. SPA fallback — returns index.html for unmatched routes
  */
 
 import express from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readFileSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── API key from Render environment variable ───────────────────────────────────
+// API key injected from Render env var (or fallback empty)
 const API_KEY = process.env.SPORTSRC_API_KEY || '';
+
 if (!API_KEY) {
-    console.warn('[server] WARNING: SPORTSRC_API_KEY is not set. API calls will fail.');
+    console.warn('[server] SPORTSRC_API_KEY not set — users must enter key via the in-app Settings UI.');
 }
 
-// ── Proxy: /api/* → https://api.sportsrc.org/v2/* ────────────────────────────
-app.use(
-    '/api',
-    createProxyMiddleware({
-        target: 'https://api.sportsrc.org',
-        changeOrigin: true,
-        secure: true,
-        pathRewrite: { '^/api': '/v2' },
-        on: {
-            proxyReq: (proxyReq) => {
-                // Inject API key on the server side (not exposed to browser)
-                proxyReq.setHeader('X-API-KEY', API_KEY);
-                // Spoof referrer so stream sources accept embed requests
-                proxyReq.setHeader('Referer', 'https://api.sportsrc.org/');
-            },
-        },
-        logger: console,
-    })
-);
+// ── Proxy: /api → https://api.sportsrc.org/v2 ───────────────────────────────
+app.use('/api', async (req, res) => {
+    try {
+        // Rebuild query string (express strips it from req.path)
+        const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+        const url = `https://api.sportsrc.org/v2${req.path}${qs}`;
 
-// ── Serve Vite build output ───────────────────────────────────────────────────
+        const upstream = await fetch(url, {
+            method: req.method,
+            headers: {
+                'X-API-KEY': API_KEY,
+                'Referer': 'https://sportsrc.org/',
+                'Origin': 'https://sportsrc.org',
+                'Accept': 'application/json',
+            },
+        });
+
+        const body = await upstream.text();
+        const contentType = upstream.headers.get('content-type') || 'application/json';
+
+        res.status(upstream.status).type(contentType).send(body);
+    } catch (err) {
+        console.error('[proxy error]', err.message);
+        res.status(502).json({ error: 'Proxy error', message: err.message });
+    }
+});
+
+// ── Static files from Vite build ─────────────────────────────────────────────
 const distPath = join(__dirname, 'dist');
 app.use(express.static(distPath));
 
-// ── SPA fallback: always return index.html for unmatched routes ───────────────
+// ── SPA fallback ──────────────────────────────────────────────────────────────
 app.get('*', (_req, res) => {
     res.sendFile(join(distPath, 'index.html'));
 });
 
+// ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-    console.log(`[Soccer Live] Running at http://localhost:${PORT}`);
+    console.log(`[Soccer Live] Server running on port ${PORT}`);
 });

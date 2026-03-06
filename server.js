@@ -55,10 +55,11 @@ const distPath = join(__dirname, 'dist');
 app.use(express.static(distPath));
 
 // ── SPA fallback ──────────────────────────────────────────────────────────────
-// Express 5 no longer accepts bare '*' — use '/:path(*)' instead
-app.get('/:path(*)', (_req, res) => {
+// Use app.use (not app.get) — bypasses path-to-regexp entirely, works with all Express versions
+app.use((_req, res) => {
     res.sendFile(join(distPath, 'index.html'));
 });
+
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {

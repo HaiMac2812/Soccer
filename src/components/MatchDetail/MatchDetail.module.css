@@ -1,0 +1,129 @@
+.detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 14px;
+    color: #8896b3;
+    font-size: 14px;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Welcome */
+.welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 18px;
+    padding: 40px;
+    text-align: center;
+}
+
+.welcomeIcon {
+    font-size: 72px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 24px rgba(0, 212, 255, 0.3));
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+.welcome h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0f4ff;
+}
+
+.welcome>p {
+    font-size: 14px;
+    color: #8896b3;
+    max-width: 380px;
+}
+
+.featureRow {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.featureCard {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.featureCard:hover {
+    border-color: #00d4ff;
+    transform: translateY(-2px);
+}
+
+.featureCard span {
+    font-size: 26px;
+}
+
+.featureCard p {
+    font-size: 12px;
+    color: #8896b3;
+}
+
+/* Info bar */
+.infoBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #8896b3;
+}
+
+.infoLabel {
+    color: #4a5568;
+}

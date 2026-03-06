@@ -1,0 +1,16 @@
+# ── Dependencies ─────────────────────────
+node_modules/
+
+# ── Build output ─────────────────────────
+dist/
+
+# ── Environment (API keys — NEVER commit) ─
+.env
+.env.local
+.env.production.local
+
+# ── Editor / OS ──────────────────────────
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
